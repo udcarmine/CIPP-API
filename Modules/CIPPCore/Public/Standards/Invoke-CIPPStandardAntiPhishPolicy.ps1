@@ -21,6 +21,7 @@ function Invoke-CIPPStandardAntiPhishPolicy {
             "mdo_phisspamacation"
             "mdo_spam_notifications_only_for_admins"
             "mdo_antiphishingpolicies"
+            "mdo_phishthresholdlevel"
         ADDEDCOMPONENT
             {"type":"number","label":"Phishing email threshold. (Default 1)","name":"standards.AntiPhishPolicy.PhishThresholdLevel","default":1}
             {"type":"boolean","label":"Show first contact safety tip","name":"standards.AntiPhishPolicy.EnableFirstContactSafetyTips","default":true}
@@ -48,10 +49,12 @@ function Invoke-CIPPStandardAntiPhishPolicy {
     #>
 
     param($Tenant, $Settings)
-    $PolicyName = 'Default Anti-Phishing Policy'
+    ##$Rerun -Type Standard -Tenant $Tenant -Settings $Settings 'AntiPhishPolicy'
+
+    $PolicyName = @('Default Anti-Phishing Policy', 'Office365 AntiPhish Default (Default)')
 
     $CurrentState = New-ExoRequest -tenantid $Tenant -cmdlet 'Get-AntiPhishPolicy' |
-        Where-Object -Property Name -EQ $PolicyName |
+        Where-Object -Property Name -In $PolicyName |
         Select-Object Name, Enabled, PhishThresholdLevel, EnableMailboxIntelligence, EnableMailboxIntelligenceProtection, EnableSpoofIntelligence, EnableFirstContactSafetyTips, EnableSimilarUsersSafetyTips, EnableSimilarDomainsSafetyTips, EnableUnusualCharactersSafetyTips, EnableUnauthenticatedSender, EnableViaTag, AuthenticationFailAction, SpoofQuarantineTag, MailboxIntelligenceProtectionAction, MailboxIntelligenceQuarantineTag, TargetedUserProtectionAction, TargetedUserQuarantineTag, TargetedDomainProtectionAction, TargetedDomainQuarantineTag, EnableOrganizationDomainsProtection
 
     $StateIsCorrect = ($CurrentState.Name -eq $PolicyName) -and
